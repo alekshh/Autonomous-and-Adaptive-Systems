@@ -212,7 +212,8 @@ class bigfishDQN():
         current_q_list = []
         target_q_list = []
         
-        for state, action, newState, Terminated, reward_new in Sampledbatch:
+        for sample in Sampledbatch:
+            state, action, newState, Terminated, reward_new = sample
             #print(f"action type is {}")
             current_q = policyNN(self.observation_to_input(state)) #get the current q values for the taken action, from policy network
             current_q_list.append(current_q) #append the q values from the policy network to the list
@@ -236,7 +237,6 @@ class bigfishDQN():
             #print(f"the target_q has the form {target_q}")
             target_q[0][action] = target
             target_q_list.append(target_q)
-        # Compute loss for the whole minibatch
         return current_q_list, target_q_list
         
    
@@ -297,7 +297,6 @@ def randomP(episodes):
         # Agent navigates map until it falls into a hole (terminated), reaches goal (terminated), or has taken 200 actions (truncated).
         while(not terminated and not truncated):  
             action = env.action_space.sample()
-
             # Execute action
             state,reward,terminated,_ = env.step(action)
             episodeReward += reward
@@ -310,8 +309,8 @@ def randomP(episodes):
 
 
 bigFish = bigfishDQN()
-#bigFish.train(100)
-bigFish.test(50)
-randomP(50)
+bigFish.train(100)
+#bigFish.test(50)
+#randomP(50)
 
 
