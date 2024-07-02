@@ -258,19 +258,14 @@ class bigfishDQN():
         rewardLog = np.zeros(episodes)
         for i in range(episodes):
             episodeReward = 0
-            state = env.reset()  # Initialize to state 0
-            terminated = False   # True when agent falls in hole or reached goal
-            truncated = False    # True when agent takes more than 200 actions            
-
-            # Agent navigates map until it falls into a hole (terminated), reaches goal (terminated), or has taken 200 actions (truncated).
-            while(not terminated and not truncated):  
-                # Select best action   
+            state = env.reset()  
+            terminated = False   
+            truncated = False      
+            while(not terminated and not truncated):
                 with torch.no_grad():
-                    processedState = self.observation_to_input(state) #process the current state
-                    maxvalue = policyNN(processedState).argmax() #find the networks max value
-                    action = maxvalue.item() #get the max as a python int
-
-                # Execute action
+                    processedState = self.observation_to_input(state) 
+                    maxvalue = policyNN(processedState).argmax()
+                    action = maxvalue.item()
                 state,reward,terminated,_ = env.step(action)
                 episodeReward += reward
             rewardLog[i] = episodeReward
