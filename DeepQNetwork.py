@@ -155,9 +155,9 @@ class bigfishDQN():
                 buffer.add((state, action, newState, Terminated, reward_new))
                 #print(f"Old reward for episode is {reward}, new reward is {reward + reward_new +1}")
                 reward += reward_new
-                state = newState
                 trunc_steps += 1
-                steps += 1               
+                steps += 1           
+                state = newState   
                 if trunc_steps > max_steps:
                     print(f"Truncated, used more than {self.max_steps} steps")
                     Truncated = True
@@ -173,7 +173,7 @@ class bigfishDQN():
                     torch.save(policyNN.state_dict(), f"bigFishMaxReward{reward}.pt")
             # Save the total rewards for the episode      
             if reward >= 1:
-                rewardLog[i] = reward               
+                rewardLog[i] = reward     #dont have to update reward if 0 since it is np.zeros()          
             # Check if enough data is in the replaybuffer
             if buffer.size() >= self.sampledBatchSize:                
                 sampledBatch = buffer.sample(self.sampledBatchSize)
@@ -199,13 +199,10 @@ class bigfishDQN():
         # Save policy
         torch.save(policyNN.state_dict(), "bigFish-test123.pt")
 
-    def qValueUpdate(self, step_reward, discount_factor, maxQ_nextState):
+    def qValueUpdate(self, step_reward, discount_factor, maxQ_nextState):  #Deepq formula
         q_new = (step_reward+discount_factor*maxQ_nextState)
-            
-        
         return q_new
-        
-        
+
         
     # make the agent learn by updating the q values
     def learn(self, Sampledbatch, policyNN, targetNN):
