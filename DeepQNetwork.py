@@ -246,59 +246,7 @@ class bigfishDQN():
         input_tensor = input_tensor.unsqueeze(0)
         return input_tensor
 
-    # Run the environment with the learned policy
-    def test(self, episodes):
-        render = True
-        env = gym.make("procgen:procgen-bigfish-v0", num_levels=0, render_mode="human" if render else None, 
-                        distribution_mode="easy", use_backgrounds=False )
-        # Load learned policy
-        policyNN =  policyNN = DQNetwork(3, 9)
-        policyNN.load_state_dict(torch.load("bigFishMaxReward42.pt"))
-        policyNN.eval()    # switch model to evaluation mode
-        rewardLog = np.zeros(episodes)
-        for i in range(episodes):
-            episodeReward = 0
-            state = env.reset()  
-            terminated = False   
-            truncated = False      
-            while(not terminated and not truncated):
-                with torch.no_grad():
-                    processedState = self.observation_to_input(state) 
-                    maxvalue = policyNN(processedState).argmax()
-                    action = maxvalue.item()
-                state,reward,terminated,_ = env.step(action)
-                episodeReward += reward
-            rewardLog[i] = episodeReward
-        plt.plot(rewardLog, label = f"Reward over {episodes} episodes")    
-        plt.show()
-        avg = np.average(rewardLog)
-        print(f"this is the average reward for the trained agent: {avg}")
-        env.close()
-        
-def randomP(episodes):
-    render = True
-    env = gym.make("procgen:procgen-bigfish-v0", num_levels=0, render_mode="human" if render else None, 
-                    distribution_mode="easy", use_backgrounds=False )
-    rewardLog = np.zeros(episodes)
-    for i in range(episodes):
-        episodeReward = 0
-        state = env.reset()  # Initialize to state 0
-        terminated = False   # True when agent falls in hole or reached goal
-        truncated = False    # True when agent takes more than 200 actions            
-
-        # Agent navigates map until it falls into a hole (terminated), reaches goal (terminated), or has taken 200 actions (truncated).
-        while(not terminated and not truncated):  
-            action = env.action_space.sample()
-            # Execute action
-            state,reward,terminated,_ = env.step(action)
-            episodeReward += reward
-        rewardLog[i] = episodeReward
-    plt.plot(rewardLog, label = f"Reward over {episodes} episodes")    
-    plt.show()
-    avg = np.average(rewardLog)
-    print(f"this is the average reward for the random agent: {avg}")
-    env.close()
-
+    
 
 bigFish = bigfishDQN()
 bigFish.train(100)
